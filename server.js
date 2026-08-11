@@ -14,11 +14,31 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.json());
-// Middleware
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:4000",
+  "https://portfolioanimeshpathak.netlify.app",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) ||
+        origin.endsWith(".netlify.app") ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
 
 
 // Health Check Route (to prevent hosting instances like Render from sleeping)
